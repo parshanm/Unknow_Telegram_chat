@@ -1,7 +1,8 @@
 from telebot import TeleBot
-from config import API_Key
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 import sqlite3
+
+API_key = 'YOUR_BOT_TOKEN'
 
 bot = TeleBot(API_Key)
 
