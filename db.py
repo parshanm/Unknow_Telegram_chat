@@ -32,6 +32,21 @@ class Data:
             data = cursor.execute("SELECT * FROM user WHERE user_id=?", (user_id, ))
         print(data.fetchone())
         return data.fetchone()
+    
+    def add_user(self, info : dict):
+        with sqlite3.connect('unknow.db') as connection:
+            try:
+                cursor = connection.cursor()
+                query = """
+                INSERT TO user VALUES(?, ?, ?, ?, ?, ?)
+                """
+                cursor.execute(query, (info['user_id'], info['chat_id'], info['first_name'], info['gender'],
+                                        info['age']))
+                connection.commit()
+            except Exception as e:
+                print(e)
+
+    
 
 
 if __name__ == '__main__':
