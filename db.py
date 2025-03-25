@@ -38,7 +38,7 @@ class Data:
             try:
                 cursor = connection.cursor()
                 query = """
-                INSERT TO user VALUES(?, ?, ?, ?, ?, ?)
+                INSERT TO user VALUES(?, ?, ?, ?, ?)
                 """
                 cursor.execute(query, (info['user_id'], info['chat_id'], info['first_name'], info['gender'],
                                         info['age']))
@@ -46,7 +46,17 @@ class Data:
             except Exception as e:
                 print(e)
 
-    
+    def add_admin(self, info : dict):
+        with sqlite3.connect('unknow.db') as connection:
+            try:
+                cursor = connection.cursor()
+                query = """
+                INSERT TO admin VALUES(?, ?, ?, ?)
+                """
+                cursor.execute(query, (info['user_id'], info['chat_id'], info['first_name'], info['gender']))
+                connection.commit()
+            except Exception as e:
+                print(e)
 
 
 if __name__ == '__main__':
