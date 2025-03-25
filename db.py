@@ -6,10 +6,11 @@ class Data:
             cursor = connection.cursor()
             table_create_query = """
                 CREATE TABLE IF NOT EXISTS user(
-                id integer primary key,
-                first_name text,
-                gender text,
-                age integer
+                user_id INTEGER PRIMARY KEY,
+                chat_id INTEGER,
+                first_name TEXT,
+                gender TEXT,
+                age INTEGER
                 );
             """
             cursor.execute(table_create_query)
@@ -17,18 +18,22 @@ class Data:
 
             table_create_query_admin = """
                 CREATE TABLE IF NOT EXISTS admins(
-                id integer primary key,
+                user_id INTEGER PRIMARY KEY,
+                chat_id INTEGER,
                 first_name text,
                 gender text
                 );
             """
             cursor.execute(table_create_query_admin)
 
-    def get_info(self):
+    def get_info(self, user_id):
         with sqlite3.connect('unknow.db') as connection:
-            pass
+            cursor = connection.cursor()
+            data = cursor.execute("SELECT * FROM user WHERE user_id=?", (user_id, ))
+        print(data.fetchone())
+        return data.fetchone()
 
 
 if __name__ == '__main__':
     data = Data()
-    data.get_info()
+    data.get_info(1)

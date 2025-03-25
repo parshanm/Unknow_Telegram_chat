@@ -1,6 +1,7 @@
 # Ignore the config.py file and database
 config.py
 unknow.db
+format.txt
 
 # Ignore the __pycache__ directory
 __pycache__/
