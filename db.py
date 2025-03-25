@@ -51,12 +51,36 @@ class Data:
             try:
                 cursor = connection.cursor()
                 query = """
-                INSERT TO admin VALUES(?, ?, ?, ?)
+                INSERT TO admins VALUES(?, ?, ?, ?)
                 """
                 cursor.execute(query, (info['user_id'], info['chat_id'], info['first_name'], info['gender']))
                 connection.commit()
             except Exception as e:
                 print(e)
+
+    def delete_user(self, user_id):
+        with sqlite3.connect('unknow.db') as connection:
+            try:
+                cursor = connection.cursor()
+                query = """DELETE FROM user WHERE user_id=?"""
+                cursor.execute(query, (user_id,))
+                connection.commit()
+                return 'done'
+            except Exception as e:
+                print(e)
+                return e
+
+    def delete_admin(self, user_id):
+        with sqlite3.connect('unknow.db') as connection:
+            try:
+                cursor = connection.cursor()
+                query = """DELETE FROM admins WHERE user_id=?"""
+                cursor.execute(query, (user_id,))
+                connection.commit()
+                return 'done'
+            except Exception as e:
+                print(e)
+                return e
 
 
 if __name__ == '__main__':
