@@ -1,8 +1,13 @@
 from telebot import TeleBot
 from config import API_Token
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
+from db import Data
 
 bot = TeleBot(API_Token)
+
+db = Data()
+
+db.add_table()
 
 CHANNEL_USERNAME = 'unknow2025chat'# https://t.me/unknow2025chat
 
@@ -38,6 +43,15 @@ def Welcome(message):
     else:
         bot.send_message(message.chat.id, "Welcome to my bot.")
         bot.send_message(message.chat.id, "Please join the channel below", reply_markup=join_channel_markup())
+    
+    if db.check_user(user_id=user_id):
+        pass
+    else:
+        db.add_user(info={'user_id':user_id,
+                           'chat_id':message.chat.id,
+                           'first_name':None,
+                           'gender':None, 
+                           'age':None})
 
 @bot.message_handler(func=lambda message:message.text == 'Your Profile')
 def profile(message):

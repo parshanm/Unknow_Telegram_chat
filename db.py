@@ -40,7 +40,7 @@ class Data:
             try:
                 cursor = connection.cursor()
                 query = """
-                INSERT TO user VALUES(?, ?, ?, ?, ?)
+                INSERT INTO user VALUES(?, ?, ?, ?, ?)
                 """
                 cursor.execute(query, (info['user_id'], info['chat_id'], info['first_name'], info['gender'],
                                         info['age']))
@@ -88,7 +88,19 @@ class Data:
             except Exception as e:
                 print(e)
                 return e
-
+            
+    def update_user(self, user_id, info : dict):
+        with sqlite3.connect('unknow.db') as connection:
+            try:
+                cursor = connection.cursor()
+                for i,k in info.items():
+                    query = f"UPDATE user SET {i} = ? WHERE user_id = ?"
+                    cursor.execute(query, (k, user_id))
+                return 'done'
+            except Exception as e:
+                print(e)
+                return e
+                
     def check_admin(self, user_id):
         with sqlite3.connect('unknow.db') as connection:
             try:
