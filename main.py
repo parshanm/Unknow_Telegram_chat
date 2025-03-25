@@ -40,7 +40,7 @@ def Welcome(message):
         bot.send_message(message.chat.id, "Welcome to my bot.")
         bot.send_message(message.chat.id, "Please join the channel below", reply_markup=join_channel_markup())
 
-@bot.message_handler(func=lambda message:message.text == 'profile')
+@bot.message_handler(func=lambda message:message.text == 'Your Profile')
 def profile(message):
     pass
 
