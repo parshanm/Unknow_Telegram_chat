@@ -25,6 +25,8 @@ class Data:
                 );
             """
             cursor.execute(table_create_query_admin)
+            connection.commit()
+            return 'done'
 
     def get_info(self, user_id):
         with sqlite3.connect('unknow.db') as connection:
@@ -43,8 +45,11 @@ class Data:
                 cursor.execute(query, (info['user_id'], info['chat_id'], info['first_name'], info['gender'],
                                         info['age']))
                 connection.commit()
+                print('done')
+                return 'done'
             except Exception as e:
                 print(e)
+                return e
 
     def add_admin(self, info : dict):
         with sqlite3.connect('unknow.db') as connection:
@@ -55,8 +60,10 @@ class Data:
                 """
                 cursor.execute(query, (info['user_id'], info['chat_id'], info['first_name'], info['gender']))
                 connection.commit()
+                return 'done'
             except Exception as e:
                 print(e)
+                return e
 
     def delete_user(self, user_id):
         with sqlite3.connect('unknow.db') as connection:
@@ -82,6 +89,35 @@ class Data:
                 print(e)
                 return e
 
+    def check_admin(self, user_id):
+        with sqlite3.connect('unknow.db') as connection:
+            try:
+                cursor = connection.cursor()
+                query = """SELECT user_id FROM admins"""
+                res = cursor.execute(query).fetchall()
+                print(res)
+                if user_id in res:
+                    return True
+                else:
+                    return False
+            except Exception as e:
+                print(e)
+                return e
+            
+    def check_user(self, user_id):
+        with sqlite3.connect('unknow.db') as connection:
+            try:
+                cursor = connection.cursor()
+                query = """SELECT user_id FROM user"""
+                res = cursor.execute(query).fetchall()
+                print(res)
+                if user_id in res:
+                    return True
+                else:
+                    return False
+            except Exception as e:
+                print(e)
+                return e
 
 if __name__ == '__main__':
     data = Data()
