@@ -1,5 +1,6 @@
 # Ignore the config.py file and database
 config.py
+test.py
 unknow.db
 format.txt
 

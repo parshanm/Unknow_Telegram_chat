@@ -122,6 +122,7 @@ class Data:
                 cursor = connection.cursor()
                 query = """SELECT user_id FROM user"""
                 res = cursor.execute(query).fetchall()
+                user_id = (user_id,)
                 print(res)
                 if user_id in res:
                     return True
