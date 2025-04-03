@@ -11,12 +11,6 @@ db.add_table()
 
 CHANNEL_USERNAME = 'unknow2025chat'# https://t.me/unknow2025chat
 
-def canncel_markup():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    canncel = KeyboardButton('cancel❎')
-    markup.add(canncel)
-    return markup
-
 def is_member(user_id):
     try:
         member = bot.get_chat_member(chat_id=f"@{CHANNEL_USERNAME}", user_id=user_id)
@@ -55,7 +49,7 @@ def name_handel(message):
     bot.send_message(message.chat.id, 'Please enter your gender (you can choose between male, female or don\'t say)')
     bot.register_next_step_handler(message, gender_handel, name=name)
 
-def gender_handel(message, name):
+def gender_handel(message, name): 
     gender = message.text
     bot.send_message(message.chat.id, 'Please enter your age')
     bot.register_next_step_handler(message, age_handel, name=name, gender=gender)
@@ -65,6 +59,8 @@ def age_handel(message, name, gender):
         age = int(message.text)
         bot.send_message(message.chat.id, 'Please enter your age')
         db.update_user(user_id, {'first_name':name, 'gender':gender, 'age':age})
+        bot.send_message(message.chat_id, 'Your profile created')
+        bot.send_message(message.chat.id, 'Main menu', reply_markup=main_menu())
     except ValueError:
         bot.send_message(message.chat.id, 'please enter a number for age')
         bot.send_message(message.chat.id, 'Please enter your age')
@@ -86,8 +82,8 @@ def Welcome(message):
     else:
         db.add_user(info={'user_id':user_id,
                            'chat_id':message.chat.id,
-                           'first_name':'dont',
-                           'gender':'dont', 
+                           'first_name':'unknow',
+                           'gender':'unknow', 
                            'age':0})
 
 @bot.message_handler(func=lambda message:message.text == 'Your Profile')
@@ -96,17 +92,12 @@ def profile(message):
     prof_message = message
     bot.reply_to(message, 'Your profile👇')
     dat = db.get_info(user_id)
-    print(dat['first_name'])
-    if dat['first_name'] != '':
+    print(dat)
+    if dat[2] != 'unknow':
         prof = f'name: {dat[2]}\n gender:{dat[3]}\n age:{str(dat[4])}'
         bot.send_message(message.chat.id, prof)
     else:
         bot.send_message(message.chat.id, 'You have not filled your profile yet', reply_markup=profile_create_markup())
-
-@bot.message_handler(func=lambda message:message.text == 'cancel❎')
-def cancel(message):
-    bot.send_message(message.chat.id, 'cancelled')
-    bot.send_message(message.chat.id, 'You backed to the main menu', reply_markup=main_menu())
 
 @bot.callback_query_handler(lambda call:True)
 def callback_query(call):

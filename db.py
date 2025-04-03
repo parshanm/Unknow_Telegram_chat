@@ -31,9 +31,9 @@ class Data:
     def get_info(self, user_id):
         with sqlite3.connect('unknow.db') as connection:
             cursor = connection.cursor()
-            data = cursor.execute("SELECT * FROM user WHERE user_id=?", (user_id, ))
-        print(data.fetchone())
-        return data.fetchone()
+            data = cursor.execute("SELECT * FROM user WHERE user_id=?", (user_id, )).fetchone()
+        print(data)
+        return data
     
     def add_user(self, info : dict):
         with sqlite3.connect('unknow.db') as connection:
@@ -134,4 +134,5 @@ class Data:
 
 if __name__ == '__main__':
     data = Data()
-    data.get_info(1)
+    res = data.get_info(6353815381)
+    print(res[0])
