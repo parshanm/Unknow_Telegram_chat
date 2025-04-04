@@ -110,13 +110,21 @@ def profile(message):
     global prof_message
     prof_message = message
     bot.reply_to(message, 'Your profile👇')
-    dat = db.get_info(user_id)
+    dat = db.get_info(message.from_user.id)
     print(dat)
     if dat[2] != 'unknow':
         prof = f'name: {dat[2]}\n gender:{dat[3]}\n age:{str(dat[4])}'
         bot.send_message(message.chat.id, prof, reply_markup=update_profile_markup())
     else:
         bot.send_message(message.chat.id, 'You have not filled your profile yet', reply_markup=profile_create_markup())
+
+@bot.message_handler(commands=['I_am_Admin'])
+def admin(message):
+    if db.check_admin((message.from_user.id,)):
+        bot.send_message(message.chat.id, 'You are admin')
+    else:
+        bot.send_message(message.chat.id, 'You are not admin')
+        bot.send_message(message.chat.id, 'main menu', reply_markup=main_menu())
 
 @bot.callback_query_handler(lambda call:True)
 def callback_query(call):

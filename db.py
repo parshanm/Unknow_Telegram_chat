@@ -107,7 +107,7 @@ class Data:
                 cursor = connection.cursor()
                 query = """SELECT user_id FROM admins"""
                 res = cursor.execute(query).fetchall()
-                print(res)
+                print(f'res: {res}')
                 if user_id in res:
                     return True
                 else:
