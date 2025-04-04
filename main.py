@@ -11,6 +11,9 @@ db.add_table()
 
 CHANNEL_USERNAME = 'unknow2025chat'# https://t.me/unknow2025chat
 
+def user_update(change, new_data):
+    pass
+
 def is_member(user_id):
     try:
         member = bot.get_chat_member(chat_id=f"@{CHANNEL_USERNAME}", user_id=user_id)
@@ -19,6 +22,20 @@ def is_member(user_id):
     except Exception as e:
         print(f"Error: {e}")
     return False
+
+def update_profile_markup():
+    markup = InlineKeyboardMarkup(row_width=1)
+    markup.add(InlineKeyboardButton("Update Profile", callback_data="update_profile"))
+    markup.add(InlineKeyboardButton("Delete Profile", callback_data="delete_profile"))
+    return markup
+
+def change_profile_markup():
+    markup = InlineKeyboardMarkup(row_width=1)
+    name = InlineKeyboardButton('name✍', callback_data='cahnge_name')
+    gender = InlineKeyboardButton('gender🙋‍♂️🙋‍♀️', callback_data='gender_change')
+    age =  InlineKeyboardButton('age📅', callback_data='age_change')
+    markup.add(name, gender, age)
+    return markup
 
 def join_channel_markup():
     markup = InlineKeyboardMarkup(row_width=1)
@@ -34,7 +51,7 @@ def profile_create_markup():
     return markup
 
 def main_menu():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     chat_btn = KeyboardButton('chat with someone unknow')
     profile_btn = KeyboardButton('Your Profile')
     markup.add(chat_btn, profile_btn)
@@ -59,7 +76,7 @@ def age_handel(message, name, gender):
         age = int(message.text)
         bot.send_message(message.chat.id, 'Please enter your age')
         db.update_user(user_id, {'first_name':name, 'gender':gender, 'age':age})
-        bot.send_message(message.chat_id, 'Your profile created')
+        bot.send_message(message.chat.id, 'Your profile created')
         bot.send_message(message.chat.id, 'Main menu', reply_markup=main_menu())
     except ValueError:
         bot.send_message(message.chat.id, 'please enter a number for age')
@@ -68,7 +85,7 @@ def age_handel(message, name, gender):
 
 
 @bot.message_handler(commands=['start'])
-def Welcome(message):
+def welcome(message):
     global user_id
     user_id = message.from_user.id
     if is_member(user_id):
@@ -95,7 +112,7 @@ def profile(message):
     print(dat)
     if dat[2] != 'unknow':
         prof = f'name: {dat[2]}\n gender:{dat[3]}\n age:{str(dat[4])}'
-        bot.send_message(message.chat.id, prof)
+        bot.send_message(message.chat.id, prof, reply_markup=update_profile_markup())
     else:
         bot.send_message(message.chat.id, 'You have not filled your profile yet', reply_markup=profile_create_markup())
 
@@ -113,5 +130,11 @@ def callback_query(call):
                                    text='Please join the channel', reply_markup=join_channel_markup())
     if call.data == 'create prof':
         create_profile(prof_message)
+
+    if call.data == 'update_profile':
+        bot.send_message(call.message.chat.id, 'What do you want to change', reply_markup=change_profile_markup())
+    if call.data  == 'delete_profile':
+        db.delete_user(user_id)
+        bot.send_message(call.message.chat.id, 'deleted')
 
 bot.polling()

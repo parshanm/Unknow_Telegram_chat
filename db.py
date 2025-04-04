@@ -69,8 +69,8 @@ class Data:
         with sqlite3.connect('unknow.db') as connection:
             try:
                 cursor = connection.cursor()
-                query = """DELETE FROM user WHERE user_id=?"""
-                cursor.execute(query, (user_id,))
+                query = """UPDATE user SET first_name =? WHERE user_id=?"""
+                cursor.execute(query, ('unknow',user_id))
                 connection.commit()
                 return 'done'
             except Exception as e:
