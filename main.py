@@ -11,9 +11,6 @@ db.add_table()
 
 CHANNEL_USERNAME = 'unknow2025chat'# https://t.me/unknow2025chat
 
-def user_update(change, new_data):
-    pass
-
 def is_member(user_id):
     try:
         member = bot.get_chat_member(chat_id=f"@{CHANNEL_USERNAME}", user_id=user_id)
@@ -31,7 +28,7 @@ def update_profile_markup():
 
 def change_profile_markup():
     markup = InlineKeyboardMarkup(row_width=1)
-    name = InlineKeyboardButton('name✍', callback_data='cahnge_name')
+    name = InlineKeyboardButton('name✍', callback_data='change_name')
     gender = InlineKeyboardButton('gender🙋‍♂️🙋‍♀️', callback_data='gender_change')
     age =  InlineKeyboardButton('age📅', callback_data='age_change')
     markup.add(name, gender, age)
@@ -84,6 +81,11 @@ def age_handel(message, name, gender):
         bot.register_next_step_handler(message, age_handel, name=name, gender=gender)
 
 
+def change_profile(message, col: str):
+    db.update_user(message.from_user.id, {col:message.text})
+    bot.send_message(message.chat.id, 'Done.')
+    profile(message)
+
 @bot.message_handler(commands=['start'])
 def welcome(message):
     global user_id
@@ -132,7 +134,21 @@ def callback_query(call):
         create_profile(prof_message)
 
     if call.data == 'update_profile':
-        bot.send_message(call.message.chat.id, 'What do you want to change', reply_markup=change_profile_markup())
+        bot.edit_message_text(chat_id=call.message.chat.id,message_id=call.message.message_id ,
+                               text='What do you want to change', reply_markup=change_profile_markup())
+
+    if call.data == 'change_name':
+        bot.send_message(call.message.chat.id,  'Enter your new name:')
+        bot.register_next_step_handler(call.message, change_profile, col='first_name')
+
+    if call.data == 'gender_change':
+        bot.send_message(call.message.chat.id, 'Enter your gender')
+        bot.register_next_step_handler(call.message, change_profile, col='gender')
+
+    if call.data == 'age_change':
+        bot.send_message(call.message.chat.id, 'Enter your age')
+        bot.register_next_step_handler(call.message, change_profile, col='age')
+    
     if call.data  == 'delete_profile':
         db.delete_user(user_id)
         bot.send_message(call.message.chat.id, 'deleted')
