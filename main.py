@@ -2,14 +2,23 @@ from telebot import TeleBot
 from config import API_Token
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 from db import Data
+import threading
 
 bot = TeleBot(API_Token)
+
+pending_rand_list = []
+# pending_boy_list = []
+# pending_girl_list = []
+conecteds = []
 
 db = Data()
 
 db.add_table()
 
 CHANNEL_USERNAME = 'unknow2025chat'# https://t.me/unknow2025chat
+
+def message(chat_id, message):
+    bot.send_message(chat_id, message)
 
 def is_member(user_id):
     try:
@@ -19,6 +28,19 @@ def is_member(user_id):
     except Exception as e:
         print(f"Error: {e}")
     return False
+
+def back_to_main_markup():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    markup.add(KeyboardButton('back to main menu'))
+    return markup
+
+def gender_ask_markup():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=2)
+    # girl_btn = KeyboardButton(text='girl👩🏻')
+    # boy_btn = KeyboardButton(text='boy🧑🏻')
+    rand_btn = KeyboardButton(text='random🎲🎲')
+    markup.add(rand_btn)
+    return markup
 
 def update_profile_markup():
     markup = InlineKeyboardMarkup(row_width=1)
@@ -105,11 +127,15 @@ def welcome(message):
                            'gender':'unknow', 
                            'age':0})
 
+@bot.message_handler(func=lambda message:message.text == 'back to main menu')
+def back_to_main_menu(message):
+    bot.reply_to(message, 'You are in main menu')
+
 @bot.message_handler(func=lambda message:message.text == 'Your Profile')
 def profile(message):
     global prof_message
     prof_message = message
-    bot.reply_to(message, 'Your profile👇')
+    bot.reply_to(message, 'Your profile👇', reply_markup=back_to_main_markup())
     dat = db.get_info(message.from_user.id)
     print(dat)
     if dat[2] != 'unknow':
@@ -126,39 +152,75 @@ def admin(message):
         bot.send_message(message.chat.id, 'You are not admin')
         bot.send_message(message.chat.id, 'main menu', reply_markup=main_menu())
 
+@bot.message_handler(func=lambda message: message.text == 'chat with someone unknow')
+def chat_find_ask(message):
+    bot.send_message(message.chat.id, 'select gender that you want', reply_markup=gender_ask_markup())
+    bot.register_next_step_handler(message, find_some)
+
+def find_some(message):
+    ud = db.get_info(message.from_user.id)
+    if pending_rand_list:
+        match = pending_rand_list.pop(0)
+        bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}')
+        bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}')
+        conecteds.append((ud[1], match[1]))
+    else:
+        pending_rand_list.append(ud)
+
+@bot.message_handler(func=lambda message:True)
+def check_list(message):
+    chat_id = message.chat.id
+    for ids in conecteds:
+        if chat_id in ids:
+            try:
+                bot.register_next_step_handler(message, send, chat=ids)
+            except Exception as e:
+                print(e)
+            print(ids)
+            return ids
+    return False
+def send(message, chat):
+    if message.chat.id == chat[0]:
+        bot.send_message(chat[1], message.text)
+
+    if message.chat.id == chat[1]:
+        bot.send_message(chat[0], message.text)
 @bot.callback_query_handler(lambda call:True)
 def callback_query(call):
-    if call.data == 'joined':
-        member = bot.get_chat_member(chat_id=f"@{CHANNEL_USERNAME}", user_id=user_id)
-        print(member.status)
-        if member.status in ['member', 'administrator', 'creator']:
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                   text='Thanks. You can use the bot now🎉', reply_markup=None)
-            bot.send_message(call.message.chat.id, "Welcome to my bot.", reply_markup=main_menu())
-        else:
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                   text='Please join the channel', reply_markup=join_channel_markup())
-    if call.data == 'create prof':
-        create_profile(prof_message)
+    try:
+        if call.data == 'joined':
+            member = bot.get_chat_member(chat_id=f"@{CHANNEL_USERNAME}", user_id=user_id)
+            print(member.status)
+            if member.status in ['member', 'administrator', 'creator']:
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                    text='Thanks. You can use the bot now🎉', reply_markup=None)
+                bot.send_message(call.message.chat.id, "Welcome to my bot.", reply_markup=main_menu())
+            else:
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                    text='Please join the channel', reply_markup=join_channel_markup())
+        if call.data == 'create prof':
+            create_profile(prof_message)
 
-    if call.data == 'update_profile':
-        bot.edit_message_text(chat_id=call.message.chat.id,message_id=call.message.message_id ,
-                               text='What do you want to change', reply_markup=change_profile_markup())
+        if call.data == 'update_profile':
+            bot.edit_message_text(chat_id=call.message.chat.id,message_id=call.message.message_id ,
+                                text='What do you want to change', reply_markup=change_profile_markup())
 
-    if call.data == 'change_name':
-        bot.send_message(call.message.chat.id,  'Enter your new name:')
-        bot.register_next_step_handler(call.message, change_profile, col='first_name')
+        if call.data == 'change_name':
+            bot.send_message(call.message.chat.id,  'Enter your new name:')
+            bot.register_next_step_handler(call.message, change_profile, col='first_name')
 
-    if call.data == 'gender_change':
-        bot.send_message(call.message.chat.id, 'Enter your gender')
-        bot.register_next_step_handler(call.message, change_profile, col='gender')
+        if call.data == 'gender_change':
+            bot.send_message(call.message.chat.id, 'Enter your gender')
+            bot.register_next_step_handler(call.message, change_profile, col='gender')
 
-    if call.data == 'age_change':
-        bot.send_message(call.message.chat.id, 'Enter your age')
-        bot.register_next_step_handler(call.message, change_profile, col='age')
-    
-    if call.data  == 'delete_profile':
-        db.delete_user(user_id)
-        bot.send_message(call.message.chat.id, 'deleted')
+        if call.data == 'age_change':
+            bot.send_message(call.message.chat.id, 'Enter your age')
+            bot.register_next_step_handler(call.message, change_profile, col='age')
+        
+        if call.data  == 'delete_profile':
+            db.delete_user(user_id)
+            bot.send_message(call.message.chat.id, 'deleted')
+    except:
+        pass
 
 bot.polling()
