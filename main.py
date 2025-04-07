@@ -173,18 +173,17 @@ def check_list(message):
     for ids in conecteds:
         if chat_id in ids:
             try:
-                bot.register_next_step_handler(message, send, chat=ids)
+                if message.chat.id ==ids[0]:
+                    bot.send_message(ids[1], message.text)
+
+                if message.chat.id == ids[1]:
+                    bot.send_message(ids[0], message.text)
             except Exception as e:
                 print(e)
             print(ids)
             return ids
-    return False
-def send(message, chat):
-    if message.chat.id == chat[0]:
-        bot.send_message(chat[1], message.text)
+    return False 
 
-    if message.chat.id == chat[1]:
-        bot.send_message(chat[0], message.text)
 @bot.callback_query_handler(lambda call:True)
 def callback_query(call):
     try:
