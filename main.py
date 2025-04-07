@@ -29,6 +29,15 @@ def is_member(user_id):
         print(f"Error: {e}")
     return False
 
+def admin_panel_markup():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=2)
+    admin_check = KeyboardButton('admins_list')
+    check_user = KeyboardButton('users_list')
+    brodcast = KeyboardButton('brodcast')
+    # connect_to_user = KeyboardButton('connect to user')
+    markup.add(admin_check, check_user, brodcast)
+    return markup
+
 def back_to_main_markup():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(KeyboardButton('back to main menu'))
@@ -151,10 +160,50 @@ def profile(message):
 @bot.message_handler(commands=['I_am_Admin'])
 def admin(message):
     if db.check_admin((message.from_user.id,)):
-        bot.send_message(message.chat.id, 'You are admin')
+        bot.send_message(message.chat.id, 'You are admin', reply_markup=admin_panel_markup())
     else:
         bot.send_message(message.chat.id, 'You are not admin')
         bot.send_message(message.chat.id, 'main menu', reply_markup=main_menu())
+
+@bot.message_handler(func=lambda message: message.text == 'admins_list')
+def admin_list(message):
+    if db.check_admin(message.from_user.id):
+        admins = db.get_all_admins()
+        for admin in admins:
+            bot.send_message(message.chat.id, admin)
+    else:
+        pass
+
+@bot.message_handler(func=lambda message: message.text == 'users_list')
+def user_list(message):
+    if db.check_admin(message.from_user.id):
+        admins = db.get_all_users()
+        for admin in admins:
+            bot.send_message(message.chat.id, admin)
+    else:
+        pass
+
+@bot.message_handler(func=lambda message: message.text == 'brodcast')
+def admin_list(message):
+    if db.check_admin(message.from_user.id):
+        bot.send_message(message.chat.id, 'Enter text to brodcast')
+        bot.register_next_step_handler(message, brodcast)
+    else:
+        pass
+
+def brodcast(message):
+    if db.check_admin(message.from_user.id):
+        users = db.get_all_users()
+        for user in users:
+            bot.send_message(user[1], message.text)
+
+# @bot.message_handler(func=lambda message:message.text == 'connect to user')
+# def connet_to_users(message):
+#     if db.check_admin(message.from_user.id):
+#         bot.send_message(message.chat.id, 'Enter user id')
+#         bot.register_next_step_handler(message, connect_to_user)
+
+        
 
 @bot.message_handler(func=lambda message: message.text == 'chat with someone unknow')
 def chat_find_ask(message):

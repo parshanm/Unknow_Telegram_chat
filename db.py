@@ -131,6 +131,26 @@ class Data:
             except Exception as e:
                 print(e)
                 return e
+    
+    def get_all_users(self):
+        with sqlite3.connect('unknow.db') as connection:
+            try:
+                cursor = connection.cursor()
+                query = """SELECT * FROM user"""
+                res = cursor.execute(query).fetchall()
+                return res
+            except Exception as e:
+                print(e)
+
+    def get_all_admin(self):
+        with sqlite3.connect('unknow.db') as connection:
+            try:
+                cursor = connection.cursor()
+                query = """SELECT * FROM admins"""
+                res = cursor.execute(query).fetchall()
+                return res
+            except Exception as e:
+                print(e)
 
 if __name__ == '__main__':
     data = Data()
