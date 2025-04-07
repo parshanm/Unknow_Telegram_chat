@@ -204,7 +204,6 @@ def find_some(message):
             if pending_girl_list:
                 match = pending_girl_list.pop(0)
                 if match[3] == 'female':
-                    match = pending_rand_list.pop(0)
                     bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
                     bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
                     conecteds.append((ud[1], match[1]))
@@ -214,7 +213,6 @@ def find_some(message):
             elif pending_rand_list:
                 match = pending_rand_list.pop(0)
                 if match[3] == 'female':
-                    match = pending_rand_list.pop(0)
                     bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
                     bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
                     conecteds.append((ud[1], match[1]))
@@ -268,7 +266,7 @@ def find_some(message):
                     bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
                     bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
                     conecteds.append((ud[1], match[1]))
-                    
+
                 else:
                     bot.send_message(message.chat.id, 'You are in the pending list')
                     pending_rand_list.append(match)
