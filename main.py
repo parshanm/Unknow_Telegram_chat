@@ -41,9 +41,9 @@ def disconnet_markup():
 def gender_ask_markup():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=2)
     girl_btn = KeyboardButton(text='girl👩🏻')
-    # boy_btn = KeyboardButton(text='boy🧑🏻')
+    boy_btn = KeyboardButton(text='boy🧑🏻')
     rand_btn = KeyboardButton(text='random🎲🎲')
-    markup.add(rand_btn, girl_btn)
+    markup.add(rand_btn, girl_btn, boy_btn)
     return markup
 
 def update_profile_markup():
@@ -178,7 +178,6 @@ def find_some(message):
             if pending_boy_list:
                 match = pending_boy_list.pop(0)
                 if match[3] == 'female':
-                    match = pending_rand_list.pop(0)
                     bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
                     bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
                     conecteds.append((ud[1], match[1]))
@@ -195,7 +194,7 @@ def find_some(message):
                 else:
                     bot.send_message(message.chat.id, 'You are in the pending list')
                     pending_girl_list.append(ud)
-                    pending_boy_list.append(match)
+                    pending_rand_list.append(match)
 
             else:
                 bot.send_message(message.chat.id, 'You are in the pending list')
@@ -225,6 +224,57 @@ def find_some(message):
             else:
                 bot.send_message(message.chat.id, 'You are in the pending list')
                 pending_girl_list.append(ud)
+
+    elif message.text == 'boy🧑🏻':
+        if ud[3] == 'male':
+            if pending_boy_list:
+                match = pending_boy_list.pop(0)
+                if match[3] == 'male':
+                    bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
+                    bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
+                    conecteds.append((ud[1], match[1]))
+                else:
+                    bot.send_message(message.chat.id, 'You are in the pending list')
+                    pending_boy_list.append(ud)
+                    pending_boy_list.append(match)
+            elif pending_rand_list:
+                match = pending_rand_list.pop(0)
+                if match[3] == 'male':
+                    bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
+                    bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
+                    conecteds.append((ud[1], match[1]))
+                else:
+                    bot.send_message(message.chat.id, 'You are in the pending list')
+                    pending_boy_list.append(ud)
+                    pending_rand_list.append(match)
+
+            else:
+                bot.send_message(message.chat.id, 'You are in the pending list')
+                pending_boy_list.append(ud)
+
+        elif ud[3] == 'female':
+            if pending_boy_list:
+                match = pending_girl_list.pop(0)
+                if match[3] == 'male':
+                    bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
+                    bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
+                    conecteds.append((ud[1], match[1]))
+                else:
+                    bot.send_message(message.chat.id, 'You are in the pending list')
+                    pending_boy_list.append(ud)
+            elif pending_rand_list:
+                match = pending_rand_list.pop(0)
+                if match[3] == 'male':
+                    bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
+                    bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
+                    conecteds.append((ud[1], match[1]))
+                else:
+                    bot.send_message(message.chat.id, 'You are in the pending list')
+                    pending_rand_list.append(match)
+
+            else:
+                bot.send_message(message.chat.id, 'You are in the pending list')
+                pending_boy_list.append(ud)
 
 
 @bot.message_handler(func=lambda message:True)
