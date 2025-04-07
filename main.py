@@ -7,8 +7,8 @@ import threading
 bot = TeleBot(API_Token)
 
 pending_rand_list = []
-# pending_boy_list = []
-# pending_girl_list = []
+pending_boy_list = []
+pending_girl_list = []
 conecteds = []
 
 db = Data()
@@ -34,12 +34,16 @@ def back_to_main_markup():
     markup.add(KeyboardButton('back to main menu'))
     return markup
 
+def disconnet_markup():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=1)
+    markup.add(KeyboardButton('disconect❌❌'))
+
 def gender_ask_markup():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=2)
-    # girl_btn = KeyboardButton(text='girl👩🏻')
+    girl_btn = KeyboardButton(text='girl👩🏻')
     # boy_btn = KeyboardButton(text='boy🧑🏻')
     rand_btn = KeyboardButton(text='random🎲🎲')
-    markup.add(rand_btn)
+    markup.add(rand_btn, girl_btn)
     return markup
 
 def update_profile_markup():
@@ -129,7 +133,7 @@ def welcome(message):
 
 @bot.message_handler(func=lambda message:message.text == 'back to main menu')
 def back_to_main_menu(message):
-    bot.reply_to(message, 'You are in main menu')
+    bot.send_message(message.chat.id, 'You are in main menu', reply_markup=main_menu())
 
 @bot.message_handler(func=lambda message:message.text == 'Your Profile')
 def profile(message):
@@ -159,13 +163,69 @@ def chat_find_ask(message):
 
 def find_some(message):
     ud = db.get_info(message.from_user.id)
-    if pending_rand_list:
-        match = pending_rand_list.pop(0)
-        bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}')
-        bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}')
-        conecteds.append((ud[1], match[1]))
-    else:
-        pending_rand_list.append(ud)
+    if message.text == 'random🎲🎲':
+        if pending_rand_list:
+            match = pending_rand_list.pop(0)
+            bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
+            bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
+            conecteds.append((ud[1], match[1]))
+        else:
+            bot.send_message(message.chat.id, 'You are in the pending list')
+            pending_rand_list.append(ud)
+
+    elif message.text == 'girl👩🏻':
+        if ud[3] == 'male':
+            if pending_boy_list:
+                match = pending_boy_list.pop(0)
+                if match[3] == 'female':
+                    match = pending_rand_list.pop(0)
+                    bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
+                    bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
+                    conecteds.append((ud[1], match[1]))
+                else:
+                    bot.send_message(message.chat.id, 'You are in the pending list')
+                    pending_girl_list.append(ud)
+                    pending_boy_list.append(match)
+            elif pending_rand_list:
+                match = pending_rand_list.pop(0)
+                if match[3] == 'female':
+                    bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
+                    bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
+                    conecteds.append((ud[1], match[1]))
+                else:
+                    bot.send_message(message.chat.id, 'You are in the pending list')
+                    pending_girl_list.append(ud)
+                    pending_boy_list.append(match)
+
+            else:
+                bot.send_message(message.chat.id, 'You are in the pending list')
+                pending_girl_list.append(ud)
+
+        elif ud[3] == 'female':
+            if pending_girl_list:
+                match = pending_girl_list.pop(0)
+                if match[3] == 'female':
+                    match = pending_rand_list.pop(0)
+                    bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
+                    bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
+                    conecteds.append((ud[1], match[1]))
+                else:
+                    bot.send_message(message.chat.id, 'You are in the pending list')
+                    pending_girl_list.append(ud)
+            elif pending_rand_list:
+                match = pending_rand_list.pop(0)
+                if match[3] == 'female':
+                    match = pending_rand_list.pop(0)
+                    bot.send_message(match[1], f'You are connected to {ud[2]}\ngender: {ud[3]}\nage: {ud[4]}', reply_markup=disconnet_markup())
+                    bot.send_message(message.chat.id, f'You are connected to {match[2]}\ngender: {match[3]}\nage: {match[4]}', reply_markup=disconnet_markup())
+                    conecteds.append((ud[1], match[1]))
+                else:
+                    pending_rand_list.append(match)
+
+            else:
+                bot.send_message(message.chat.id, 'You are in the pending list')
+                pending_girl_list.append(ud)
+
 
 @bot.message_handler(func=lambda message:True)
 def check_list(message):
@@ -178,6 +238,11 @@ def check_list(message):
 
                 if message.chat.id == ids[1]:
                     bot.send_message(ids[0], message.text)
+                if message.text == 'disconect❌❌':
+                    bot.send_message(ids[0], 'disconnected')
+                    bot.send_message(ids[0], 'main menu', reply_markup=main_menu())
+                    bot.send_message(ids[1], 'disconnected')
+                    bot.send_message(ids[1], 'main menu', reply_markup=main_menu())
             except Exception as e:
                 print(e)
             print(ids)
