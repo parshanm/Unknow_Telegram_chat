@@ -4,7 +4,7 @@
 You can chat with someone Unknow!!!
 You will connect to a random person and you can chat with them. 
 
-## Installation
+# Installation
 
 How to run this robot
 
@@ -18,12 +18,12 @@ run the main file:
 ```bash
 python3 main.py
 ```
-## Authors
+# Authors
 
 - [@Parshan Mazaheri](https://github.com/parshanm)
 
 
-## Badges
+# Badges
 
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
