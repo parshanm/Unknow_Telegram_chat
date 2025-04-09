@@ -46,6 +46,7 @@ def back_to_main_markup():
 def disconnet_markup():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=1)
     markup.add(KeyboardButton('disconect❌❌'))
+    return markup
 
 def gender_ask_markup():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=2)
@@ -341,6 +342,7 @@ def check_list(message):
                     bot.send_message(ids[0], 'main menu', reply_markup=main_menu())
                     bot.send_message(ids[1], 'disconnected')
                     bot.send_message(ids[1], 'main menu', reply_markup=main_menu())
+                    conecteds.remove(ids)
             except Exception as e:
                 print(e)
             print(ids)
